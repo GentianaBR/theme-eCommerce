@@ -1,64 +1,97 @@
 <div class="bg-{{ settings.footer_colors }} text-{{ settings.footer_colors }}-content">
-    <footer class="footer md:footer-horizontal lg:footer-horizontal px-4 py-10 max-w-8xl mx-auto container justify-items-center">
-      <aside class="justify-self-start flex flex-col md:flex-row lg:flex-col gap-8">
-        {% if settings.footer_image %}
-            <img class="justify-self-start" src="{{ settings.footer_image_src | asset_img_url:'300','0' }}" alt="{{ settings.footer_image_alt | t:'default' }}">
-        {% endif %}
-        <div class="flex flex-col gap-4 max-w-lg">
-        {% unless settings.footer_about_shop == empty %}
-            <p class="font-bold">
-              {{ settings.footer_about_shop | t:'default' }}
-            </p> 
-        {% endunless %}
-        {% if settings.footer_social_enable %}
-          <div class="grid grid-flow-col gap-4">
-            {% include 'socialmedia-icon-links' %}
+  <footer class="footer-main max-w-8xl mx-auto container px-4 py-10 grid gap-10 md:grid-cols-5 grid-cols-1 md:grid-areas-desktop grid-areas-mobile" role="contentinfo">
+    <aside class="footer-brand flex flex-col gap-4">
+      {% if settings.footer_image %}
+        <img src="{{ settings.footer_image_src | asset_img_url:'300','0' }}" alt="{{ settings.footer_image_alt | t:'default' }}">
+      {% endif %}
+      {% unless settings.footer_about_shop == empty %}
+        <p class="font-bold">
+          {{ settings.footer_about_shop | t:'default' }}
+        </p>
+      {% endunless %}
+      {% if settings.footerButtonEnabled %}
+        <a href="{{ settings.footerButtonURL }}" class="footer-cta">
+          {{ settings.footerButtonText | t:'default' }}
+        </a>
+      {% endif %}
+    </aside>
+    {% if settings.footer_quicklinks_enable %}
+      {% for linkList in settings.footer_linklists %}
+        <nav class="footer-links footer-col-{{ forloop.index }}" 
+          aria-label="{{ linkList.footer_linklist_title }}">
+          <div class="block md:hidden">
+            <div class="collapse">
+              <input type="checkbox" aria-hidden="true">
+              <h2 class="collapse-title text-sm font-semibold uppercase tracking-wider text-gray-400 flex justify-between items-center">
+                {{ linkList.footer_linklist_title }}
+              </h2>
+              <div class="collapse-content">
+                <ul class="flex flex-col gap-2">
+                  {% for link in navigation[linkList.footer_linklist].links %}
+                    <li>
+                      <a href="{{ link | url }}" class="hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                        {{ link.title }}
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
           </div>
-        {% endif %}
-        </div>
-      </aside> 
-	  {% if settings.footer_quicklinks_enable %}
-        {% for linkList in settings.footer_linklists %}
-          <nav>
-            <header class="footer-title">{{ linkList.footer_linklist_title }}</header> 
-            {% for link in navigation[linkList.footer_linklist].links %}
-            <a class="link link-hover" href="{{ link | url }}">{{ link.title }}</a>
-            {% endfor %}
-          </nav> 
-        {% endfor %}
-      {% endif %}
-      <div class="place-self-stretch grid place-items-center">
-        {% if settings.footerButtonEnabled %}<a href="{{ settings.footerButtonURL }}" class="btn btn-lg btn-primary">{{ settings.footerButtonText | t:'default' }}</a>{% endif %}
-      </div>
-         {% if settings.footer_payment_enable %}
-        <div class="mt-8 flex flex-col items-center gap-4" aria-label="Accepted payment methods">
-          <p class="font-semibold">
-            {{ settings.footer_payment_text | t:'default' }}
-          </p>
-
-          <ul class="flex flex-wrap gap-4 list-none p-0 m-0">
-            {% for method in settings.footer_payment_methods %}
-              {% if method.logo %}
+          <div class="hidden md:flex flex-col gap-2">
+            <h2 class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">
+              {{ linkList.footer_linklist_title }}
+            </h2>
+            <ul class="flex flex-col gap-2">
+              {% for link in navigation[linkList.footer_linklist].links %}
                 <li>
-                 <img
-  src="{{ method.logo | asset_img_url:'120','0' }}"
-  alt="{{ method.alt }}"
-  loading="lazy"
-  class="w-auto object-contain opacity-90"
-  style="height: 22px;"
->
-
-
-
-
+                  <a href="{{ link | url }}" class="hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    {{ link.title }}
+                  </a>
                 </li>
-              {% endif %}
-            {% endfor %}
-          </ul>
-        </div>
-      {% endif %}
-    </footer>
-    <footer class="footer-horizontal p-2 pb-4 max-w-8xl mx-auto container">
-        <p class="text-sm">{{ 'Copyright &copy;' | t:'default' }} {{ site.name }} - {{ 'All rights reserved' | t:'default'}}</p>
-    </footer>
+              {% endfor %}
+            </ul>
+          </div>
+        </nav>
+      {% endfor %}
+    {% endif %}
+  </footer>
+  <section class="footer-bottom mt-6 pt-4 border-t border-base-300" aria-label="Footer secondary content"> 
+    <div class="container mx-auto">
+      <div class="flex items-start gap-10 flex-col md:flex-row justify-center">
+        {% if settings.footer_social_enable %}
+          <section aria-labelledby="footer-social-heading">
+            <h2 id="footer-social-heading" class="footer-bottom-title">
+              Följ oss
+            </h2>
+            <div class="social-icons flex gap-3 mt-2">
+              {% include 'socialmedia-icon-links' %}
+            </div>
+          </section>
+        {% endif %}
+        {% if settings.footer_payment_enable and settings.footer_payment_methods.size > 0 %}
+          <section aria-labelledby="footer-payment-heading">
+            <h2 id="footer-payment-heading" class="footer-title mb-2">
+              {{ settings.footer_payment_text }}
+            </h2>
+            <ul class="flex gap-2 items-center flex-wrap">
+              {% for payment in settings.footer_payment_methods %}
+                <li>
+                  <img src="{{ payment.logo | asset_url }}" alt="Betala med {{ payment.name }}" class="h-6">
+                </li>
+              {% endfor %}
+            </ul>
+          </section>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+  <section class="footer-copyright max-w-8xl mx-auto container px-4 pb-6 mt-8" aria-label="Copyright information">
+    <p class="text-sm text-center">
+      {{ 'Copyright &copy;' | t:'default' }} 
+      {{ site.name }} - 
+      {{ 'All rights reserved' | t:'default' }}
+    </p>
+  </section>
+
 </div>
